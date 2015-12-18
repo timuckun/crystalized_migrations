@@ -11,6 +11,12 @@ module Html
       end
     end
 
+    def dump
+      @links.each do |link|
+        puts link.url
+      end
+    end
+
     def find_link
       link_reg = /<a [^>]*href=("|')?([^ >"']+)("|')?[^>]*>/mi
       match = link_reg.match @data, @offset

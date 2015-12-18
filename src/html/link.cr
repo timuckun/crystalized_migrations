@@ -1,6 +1,8 @@
 module Html
   class Link
-    def initialize url = ""
+    getter url
+
+    def initialize @url = ""
     end
   end
 end
