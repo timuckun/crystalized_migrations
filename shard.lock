@@ -1,0 +1,6 @@
+version: 1.0
+shards:
+  pg:
+    github: will/crystal-pg
+    commit: cafe61b4384b85677ff04110ba882222fb52ba7c
+

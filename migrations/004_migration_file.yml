@@ -1,0 +1,8 @@
+up:
+  create_table:
+    name: sites
+    columns:
+      - id: integer
+      - url: string
+down:
+  drop_table: sites

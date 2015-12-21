@@ -5,3 +5,8 @@ authors:
   - Robert L. Carpenter <robacarp@gmail.com>
 
 license: MIT
+
+dependencies:
+  pg:
+    github: will/crystal-pg
+    branch: master
