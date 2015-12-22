@@ -1,31 +1,28 @@
-# html_scraper
+# Crystal Migrations
 
-TODO: Write a description here
+I'm learning Crystal (most recently from ruby). As an exercise in learning to code in a stricter, compiled environment, I'm building a database migration system.
+
+## Goals
+
+- Provide a yaml-based database migration dsl, which can be run post-deploy for database connected projects.
+- Provide a simple, programmatic database api targeted towards creating schemas.
+- Both interfaces should be capable subsets of SQL queries, geared towards schema creation.
+- Full type abstraction of variables into database fields.
 
 ## Installation
 
+Eventually, this project will be embeddable in other projects as a shard.
 
-TODO: Write installation instructions here
-
+For now, it runs only on its own.
 
 ## Usage
 
-
-
-TODO: Write usage instructions here
-
-## Development
-
-TODO: Write development instructions here
+```./run``` from the project directory.
 
 ## Contributing
 
-1. Fork it ( https://github.com/[your-github-name]/html_scraper/fork )
-2. Create your feature branch (git checkout -b my-new-feature)
-3. Commit your changes (git commit -am 'Add some feature')
-4. Push to the branch (git push origin my-new-feature)
-5. Create a new Pull Request
+Currently, the most valueable feedback is code review. Leave a comment or send me an email.
 
 ## Contributors
 
-- [[your-github-name]](https://github.com/[your-github-name]) Robert L. Carpenter - creator, maintainer
+- [[@robacarp]](https://bitbucket.com/robacarp) Robert L. Carpenter - creator, maintainer
