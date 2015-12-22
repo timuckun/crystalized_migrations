@@ -9,9 +9,7 @@ module Migrations
     def render : RenderedStatement
       statement = "CREATE TABLE #{@name} ("
 
-      @columns.each do |column|
-        statement += column.render
-      end
+      statement += @columns.map {|c| c.render}.join(", ")
 
       statement += "\n)"
 

@@ -10,8 +10,8 @@ module Migrations
       with dsl yield
 
       dsl.actions.map {|a| a.render}.each do |statement|
-         @database_connection.exec statement.statement, statement.values
-       end
+        @database_connection.exec statement.statement, statement.values
+      end
     end
   end
 end

@@ -63,9 +63,9 @@ module Migrations
     end
 
     def run_pending_migrations
-      puts "running pending migrations"
+      puts "running pending migrations: "
       pending_migrations = @files.map { |name| $~[1] if name =~ /^(\d+)_.+$/ } - @migrations
-      puts pending_migrations
+      puts "\t #{pending_migrations.join ", " }"
       pending_migrations.each {|number| run_migration number}
     end
 
@@ -74,6 +74,15 @@ module Migrations
       return unless index
       puts "Migrating... #{@files[index]}"
       YamlRunner.new(File.join(migrations_dir, @files[index]), @database).run
+      log_success number
+    end
+
+    def log_success number
+      query = <<-SQL
+        INSERT INTO schema_migrations (migration_id) VALUES($1::text)
+      SQL
+
+      @database.exec query, [number]
     end
 
   end

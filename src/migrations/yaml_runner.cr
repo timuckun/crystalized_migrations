@@ -25,7 +25,11 @@ module Migrations
         end
       end
 
-      puts steps
+      steps.map {|a| a.render}.each do |statement|
+        @database.exec statement.statement, statement.values
+      end
+
+      true
     end
 
     def create_table structure

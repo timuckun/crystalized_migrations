@@ -16,11 +16,11 @@ module Migrations
       end
 
       case type
-      when "String"
+      when /String/i
         "varchar(255)"
-      when "Int"
+      when /Int/i
         "bigint"
-      when "Boolean"
+      when /Boolean/i
         "boolean"
       else
         type

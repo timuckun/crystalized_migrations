@@ -36,6 +36,7 @@ module Migrations
     end
 
     def table_exist? name : Symbol
+      # sniped from the psql \d command
       query = <<-SQL
       SELECT c.oid,
         n.nspname,
