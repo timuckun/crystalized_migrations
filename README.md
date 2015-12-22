@@ -17,7 +17,9 @@ For now, it runs only on its own.
 
 ## Usage
 
-```./run``` from the project directory.
+Make sure to provide a postgres database called "migrations_test" on localhost, owned by your current user, with no password. There's no connection parameter handling code.
+
+```shards install; ./run``` from the project directory.
 
 ## Contributing
 

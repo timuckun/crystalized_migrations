@@ -6,7 +6,7 @@ module Migrations
     def initialize(
           server = "localhost",
           port = 5432,
-          database = "html_scraper",
+          database = "migrations_test",
           user = "",
           pass = ""
       )
@@ -27,8 +27,8 @@ module Migrations
     end
 
     def exec string : String, parameters
-      @pg.exec string, parameters
       puts "Executing query: #{string}"
+      @pg.exec string, parameters
     end
 
     def exec query : String

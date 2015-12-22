@@ -45,8 +45,6 @@ module Migrations
             column :migration_id, String
           end
         end
-
-        @database.create_table :schema_migrations
       else
         puts "\t it does"
       end
