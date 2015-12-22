@@ -1,7 +1,6 @@
 require "./postgres"
 require "./runner"
-
-require "yaml"
+require "./yaml_runner"
 
 module Migrations
   class Migrator
@@ -75,15 +74,10 @@ module Migrations
     def run_migration number
       index = @files.index {|f| f =~ /^#{number}/ }
       return unless index
-      puts @files[index]
-      parse @files[index]
+      puts "Migrating... #{@files[index]}"
+      YamlRunner.new(File.join(migrations_dir, @files[index]), @database).run
     end
 
-    def parse file
-      source = File.read(migrations_dir + file)
-      migration = (YAML.load(source) as Hash)["up"]
-      puts migration
-    end
   end
 end
 

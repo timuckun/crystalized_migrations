@@ -9,9 +9,11 @@ module Migrations
       dsl = Migrations::DSL::Migration.new
       with dsl yield
 
-      dsl.each_statement do |statement|
-        @database_connection.exec statement.statement, statement.values
-      end
+      puts dsl.actions.map {|a| a.render}
+      
+      # .each do |statement|
+      #   @database_connection.exec statement.statement, statement.values
+      # end
     end
   end
 end

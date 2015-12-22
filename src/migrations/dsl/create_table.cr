@@ -1,27 +1,36 @@
-require "../rendered_statement"
+require "../structs"
 
 module Migrations
   module DSL
     class CreateTable
 
-      struct Column
-        property :name
-        property :type
-
-        def initialize @name, @type
+      def initialize name : Symbol | String
+        if name.is_a? Symbol
+          name = name.to_s
         end
-      end
 
-      def initialize @name
+        @name = name
       end
 
       @columns = [] of Column
 
-      def column name : Symbol, type : Class, *opts
+      def column name : String | Symbol, type : Class, *opts
+        if name.is_a? Symbol
+          name = name.to_s
+        end
+
+        if type.is_a? Class
+          type = type.to_s
+        end
+
         @columns << Column.new(name, type)
       end
 
-      def render : RenderedStatement
+      def compiled_action
+        Table.new @name, @columns
+      end
+
+      def render
         statement = "CREATE TABLE #{@name} ("
 
         @columns.each do |column|

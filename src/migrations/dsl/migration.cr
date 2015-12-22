@@ -1,22 +1,18 @@
-require "../rendered_statement"
+require "../structs"
 
 module Migrations
   module DSL
     class Migration
-      @statements = [] of RenderedStatement
+      getter :actions
 
-      def create_table name : Symbol
+      @actions = [] of RunnableMigrations
+
+      def create_table name : Symbol | String
         dsl = CreateTable.new(name)
         with dsl yield
-
-        @statements << dsl.render
+        @actions << dsl.compiled_action
       end
 
-      def each_statement
-        @statements.each do |statement|
-          yield statement
-        end
-      end
     end
   end
 end

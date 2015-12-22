@@ -27,8 +27,8 @@ module Migrations
     end
 
     def exec string : String, parameters
-      puts "Executing query: "
       @pg.exec string, parameters
+      puts "Executing query: #{string}"
     end
 
     def exec query : String
