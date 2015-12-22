@@ -9,6 +9,11 @@ I'm learning Crystal (most recently from ruby). As an exercise in learning to co
 - Both interfaces should be capable subsets of SQL queries, geared towards schema creation.
 - Full type abstraction of variables into database fields.
 
+## Current status
+
+- Prototypical. I've barely run a string through getting it to run migrations from yaml and the api. During this effort, I reorganized and retargeted at least twice.
+- Only capable of creating tables (not dropping them) and the only tested column data types are "string".
+
 ## Installation
 
 Eventually, this project will be embeddable in other projects as a shard.
