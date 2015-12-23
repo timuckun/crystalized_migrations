@@ -17,9 +17,12 @@ module Migrations
       steps = [] of RunnableMigrations
 
       migration.each_key do |key|
+        params = migration[key] as Hash
         case key
         when "create_table"
-          steps << create_table(migration[key] as Hash)
+          steps << create_table(params)
+        when "drop_table"
+          steps << drop_table(params)
         else
           raise "Couldn't run #{key} migration, it's probably not implemented yet"
         end
@@ -38,10 +41,15 @@ module Migrations
 
       columns = (structure["columns"] as Array).map do |column|
         next unless column.is_a? Hash
-        Column.new column.first_key as String, column.first_value as String
+        Statements::Column.new column.first_key as String, column.first_value as String
       end
 
-      Table.new structure["name"] as String, columns.compact as Array(Column)
+      Statements::CreateTable.new structure["name"] as String, columns.compact as Array(Statements::Column)
+    end
+
+    def drop_table meta
+      puts meta
+      Statements::DropTable.new ""
     end
 
   end

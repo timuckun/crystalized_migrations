@@ -4,54 +4,54 @@ require "./yaml_runner"
 
 module Migrations
   class Migrator
-    def self.run
-      new.run
+    def self.rewind
+      new.rollback_last_migration
     end
+
+    def self.migrate
+      migrator = new
+      if migrator.needs_migrations?
+        migrator.run_pending_migrations
+      else
+        puts "Database is up to date"
+      end
+    end
+
 
     @files = [] of String
     @database :: Postgres
     @migrations = [] of String
+    @pending_migrations = [] of String
 
     def initialize
       @database = Postgres.new
+
+      look_for_files
+      verify_migrations_table_exists
+      get_migration_list
     end
 
     def migrations_dir
       "migrations/"
     end
 
-    def run
-      look_for_files
-      verify_migrations_table_exists
-      get_migration_list
-      run_pending_migrations
-    end
-
     def look_for_files
       Dir.glob("migrations/*.yml") do |file_path|
         @files << file_path.gsub(/#{migrations_dir}/,"")
       end
-
-      puts @files
     end
 
     def verify_migrations_table_exists
-      puts "verifying migrations table exists"
       unless @database.table_exist? :schema_migrations
-        puts "\t it doesnt't, creating"
-
         Migrations::Runner.new(@database).run do
           create_table :schema_migrations do
             column :migration_id, String
           end
         end
-      else
-        puts "\t it does"
       end
     end
 
     def get_migration_list
-      puts "fetching migrations table from database"
       result = @database.exec("SELECT * FROM schema_migrations")
 
       result.rows.each do |row|
@@ -60,13 +60,22 @@ module Migrations
           @migrations << first
         end
       end
+
+      @pending_migrations = @files.map { |name| $~[1] if name =~ /^(\d+)_.+$/ } - @migrations
+    end
+
+    def needs_migrations?
+      @pending_migrations.size > 0
     end
 
     def run_pending_migrations
-      puts "running pending migrations: "
+      puts "pending migrations: "
       pending_migrations = @files.map { |name| $~[1] if name =~ /^(\d+)_.+$/ } - @migrations
       puts "\t #{pending_migrations.join ", " }"
-      pending_migrations.each {|number| run_migration number}
+
+      pending_migrations.compact
+                        .sort {|a, b| a.to_i <=> b.to_i }
+                        .each {|number| run_migration number }
     end
 
     def run_migration number
@@ -85,7 +94,8 @@ module Migrations
       @database.exec query, [number]
     end
 
+    def rollback_last_migration
+    end
+
   end
 end
-
-Migrations::Migrator.run

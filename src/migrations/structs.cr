@@ -1,7 +1,5 @@
-require "./column"
-require "./table"
-require "./rendered_statement"
+require "./statements/*"
 
 module Migrations
-  alias RunnableMigrations = Table
+  alias RunnableMigrations = Statements::CreateTable | Statements::DropTable
 end
