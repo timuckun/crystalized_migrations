@@ -7,7 +7,7 @@ module Migrations
       end
 
       def render : RenderedStatement
-        RenderedStatement.new("", [] of String)
+        RenderedStatement.new("DROP TABLE #{@name}", [] of String)
       end
     end
   end

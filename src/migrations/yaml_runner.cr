@@ -3,11 +3,35 @@ require "./structs"
 
 module Migrations
   class YamlRunner
+    getter :migration
+    setter :migration
+    getter :data
+
+    def self.forward file, database
+      runner = new file, database
+      runner.migrate
+    end
+
+    def self.reverse file, database
+      runner = new file, database
+      runner.rollback
+    end
+
     def initialize file, @database
-      data = File.read(file)
+      data  = File.read(file)
       @data = (YAML.load(data) as Hash)
-      @migration = @data["up"] if @data["up"]
-      @reverse   = @data["down"] if @data["down"]
+      @forward = @data["up"] if @data["up"]
+      @reverse = @data["down"] if @data["down"]
+    end
+
+    def migrate
+      @migration = @forward
+      run
+    end
+
+    def rollback
+      @migration = @reverse
+      run
     end
 
     def run
@@ -18,6 +42,7 @@ module Migrations
 
       migration.each_key do |key|
         params = migration[key] as Hash
+
         case key
         when "create_table"
           steps << create_table(params)
@@ -48,8 +73,9 @@ module Migrations
     end
 
     def drop_table meta
-      puts meta
-      Statements::DropTable.new ""
+      raise "Drop Table needs a name" unless meta.has_key? "name"
+
+      Statements::DropTable.new meta["name"]
     end
 
   end

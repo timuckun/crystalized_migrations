@@ -5,16 +5,17 @@ require "./yaml_runner"
 module Migrations
   class Migrator
     def self.rewind
-      new.rollback_last_migration
+      new.migrate :reverse
     end
 
     def self.migrate
-      migrator = new
-      if migrator.needs_migrations?
-        migrator.run_pending_migrations
-      else
-        puts "Database is up to date"
+      instance = new
+      while instance.needs_migrations?
+        instance.migrate :forward
+        instance.recalculate
       end
+
+      puts "Database is up to date."
     end
 
 
@@ -25,9 +26,12 @@ module Migrations
 
     def initialize
       @database = Postgres.new
-
       look_for_files
       verify_migrations_table_exists
+      recalculate
+    end
+
+    def recalculate
       get_migration_list
     end
 
@@ -61,6 +65,8 @@ module Migrations
         end
       end
 
+      @migrations = @migrations.compact.sort {|a, b| a.to_i <=> b.to_i }
+
       @pending_migrations = @files.map { |name| $~[1] if name =~ /^(\d+)_.+$/ } - @migrations
     end
 
@@ -68,22 +74,41 @@ module Migrations
       @pending_migrations.size > 0
     end
 
-    def run_pending_migrations
-      puts "pending migrations: "
-      pending_migrations = @files.map { |name| $~[1] if name =~ /^(\d+)_.+$/ } - @migrations
-      puts "\t #{pending_migrations.join ", " }"
-
-      pending_migrations.compact
-                        .sort {|a, b| a.to_i <=> b.to_i }
-                        .each {|number| run_migration number }
+    def run_next_migration
+      migrations = @pending_migrations
+      if migrations.any?
+        run_migration @pending_migrations.first as String
+      end
     end
 
-    def run_migration number
-      index = @files.index {|f| f =~ /^#{number}/ }
-      return unless index
-      puts "Migrating... #{@files[index]}"
-      YamlRunner.new(File.join(migrations_dir, @files[index]), @database).run
+    def file_for_migration(migration_number)
+      index = @files.index {|f| f =~ /^#{migration_number}/ }
+
+      if index
+        File.join(migrations_dir, @files[index])
+      else
+        raise "Could not find yml file matching #{migration_number}*.yml"
+      end
+    end
+
+    def migrate direction
+      if direction == :reverse
+        rollback_last_migration
+        true
+      else
+        run_next_migration
+      end
+    rescue e : PG::ResultError
+      puts "Error: #{e.message}"
+    end
+
+    def run_migration number : String
+      migration_file = file_for_migration(number)
+      puts "Migrating... #{migration_file}"
+      YamlRunner.forward(migration_file, @database)
       log_success number
+
+      nil
     end
 
     def log_success number
@@ -91,10 +116,30 @@ module Migrations
         INSERT INTO schema_migrations (migration_id) VALUES($1::text)
       SQL
 
-      @database.exec query, [number]
+      @database.exec_silent query, [number]
     end
 
     def rollback_last_migration
+      unless @migrations.any?
+        puts "No migrations on record"
+        return
+      end
+
+      migration_file = file_for_migration(@migrations.last)
+      puts "Rolling back migration: #{migration_file}"
+      YamlRunner.reverse(migration_file, @database)
+
+      remove_log @migrations.last
+
+      nil
+    end
+
+    def remove_log number
+      query = <<-SQL
+        DELETE FROM schema_migrations WHERE migration_id = $1::text
+      SQL
+
+      @database.exec_silent query, [number]
     end
 
   end

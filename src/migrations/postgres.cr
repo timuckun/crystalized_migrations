@@ -28,6 +28,10 @@ module Migrations
 
     def exec string : String, parameters
       puts "Executing query: #{string}"
+      exec_silent string, parameters
+    end
+
+    def exec_silent string : String, parameters
       @pg.exec string, parameters
     end
 

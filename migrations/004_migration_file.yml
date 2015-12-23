@@ -5,4 +5,5 @@ up:
       - id: integer
       - url: string
 down:
-  drop_table: sites
+  drop_table:
+    name: sites
