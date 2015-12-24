@@ -4,7 +4,7 @@ module Migrations
   module DSL
     class CreateTable
 
-      def initialize name : Symbol | String
+      def initialize(name : Symbol | String)
         if name.is_a? Symbol
           name = name.to_s
         end
@@ -14,7 +14,7 @@ module Migrations
 
       @columns = [] of Statements::Column
 
-      def column name : String | Symbol, type : Class, *opts
+      def column(name : String | Symbol, type : Class, *opts)
         if name.is_a? Symbol
           name = name.to_s
         end

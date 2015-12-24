@@ -3,7 +3,7 @@ module Migrations
     struct DropTable
       property :name
 
-      def initialize @name
+      def initialize(@name)
       end
 
       def render : RenderedStatement

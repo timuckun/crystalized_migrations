@@ -3,7 +3,7 @@ module Migrations
     property :values
     property :statement
 
-    def initialize @statement : String, @values : Array(String)
+    def initialize(@statement : String, @values : Array(String))
     end
   end
 end

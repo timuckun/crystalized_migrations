@@ -2,7 +2,7 @@ require "./dsl/*"
 
 module Migrations
   class Runner
-    def initialize @database_connection : Postgres
+    def initialize(@database_connection : Postgres)
     end
 
     def run

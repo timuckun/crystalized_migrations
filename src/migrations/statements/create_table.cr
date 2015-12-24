@@ -4,7 +4,7 @@ module Migrations
       property :name
       property :columns
 
-      def initialize @name : String, @columns : Array(Column)
+      def initialize(@name : String, @columns : Array(Column))
       end
 
       def render : RenderedStatement

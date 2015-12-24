@@ -7,7 +7,7 @@ module Migrations
 
       @actions = [] of RunnableMigrations
 
-      def create_table name : Symbol | String
+      def create_table(name : Symbol | String)
         dsl = CreateTable.new(name)
         with dsl yield
         @actions << dsl.compiled_action

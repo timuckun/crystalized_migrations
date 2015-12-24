@@ -91,7 +91,7 @@ module Migrations
       end
     end
 
-    def migrate direction
+    def migrate(direction)
       if direction == :reverse
         rollback_last_migration
         true
@@ -102,7 +102,7 @@ module Migrations
       puts "Error: #{e.message}"
     end
 
-    def run_migration number : String
+    def run_migration(number : String)
       migration_file = file_for_migration(number)
       puts "Migrating... #{migration_file}"
       YamlRunner.forward(migration_file, @database)
@@ -111,7 +111,7 @@ module Migrations
       nil
     end
 
-    def log_success number
+    def log_success(number)
       query = <<-SQL
         INSERT INTO schema_migrations (migration_id) VALUES($1::text)
       SQL
@@ -134,7 +134,7 @@ module Migrations
       nil
     end
 
-    def remove_log number
+    def remove_log(number)
       query = <<-SQL
         DELETE FROM schema_migrations WHERE migration_id = $1::text
       SQL

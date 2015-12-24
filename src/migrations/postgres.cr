@@ -23,23 +23,23 @@ module Migrations
       @pg = PG.connect(connection_string)
     end
 
-    def create_table name : Symbol
+    def create_table(name : Symbol)
     end
 
-    def exec string : String, parameters
+    def exec(string : String, parameters)
       puts "Executing query: #{string}"
       exec_silent string, parameters
     end
 
-    def exec_silent string : String, parameters
+    def exec_silent(string : String, parameters)
       @pg.exec string, parameters
     end
 
-    def exec query : String
+    def exec(query : String)
       @pg.exec query
     end
 
-    def table_exist? name : Symbol
+    def table_exist?(name : Symbol)
       # sniped from the psql \d command
       query = <<-SQL
       SELECT c.oid,

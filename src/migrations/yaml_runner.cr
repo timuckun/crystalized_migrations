@@ -7,17 +7,17 @@ module Migrations
     setter :migration
     getter :data
 
-    def self.forward file, database
+    def self.forward(file, database)
       runner = new file, database
       runner.migrate
     end
 
-    def self.reverse file, database
+    def self.reverse(file, database)
       runner = new file, database
       runner.rollback
     end
 
-    def initialize file, @database
+    def initialize(file, @database)
       data  = File.read(file)
       @data = (YAML.load(data) as Hash)
       @forward = @data["up"] if @data["up"]
@@ -60,7 +60,7 @@ module Migrations
       true
     end
 
-    def create_table structure
+    def create_table(structure)
       raise "Create Table needs a name" unless structure.has_key? "name"
       raise "Create Table needs an array of columns" unless structure.has_key? "columns"
 
@@ -72,7 +72,7 @@ module Migrations
       Statements::CreateTable.new structure["name"] as String, columns.compact as Array(Statements::Column)
     end
 
-    def drop_table meta
+    def drop_table(meta)
       raise "Drop Table needs a name" unless meta.has_key? "name"
 
       Statements::DropTable.new meta["name"]
