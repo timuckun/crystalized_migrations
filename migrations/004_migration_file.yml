@@ -4,9 +4,10 @@ up:
     columns:
       - id: integer
       - url: string
-  # add_column:
-  #   to_table: sites
-  #   name:
+  add_column:
+    to_table: sites
+    name: scraped_at
+    type: Time
   # execute: |
   #   alter table thing
   #   add column stuff

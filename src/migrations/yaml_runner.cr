@@ -48,6 +48,8 @@ module Migrations
           steps << create_table(params)
         when "drop_table"
           steps << drop_table(params)
+        when "add_column"
+          steps << add_column(params)
         else
           raise "Couldn't run #{key} migration, it's probably not implemented yet"
         end
@@ -78,5 +80,12 @@ module Migrations
       Statements::DropTable.new meta["name"]
     end
 
+    def add_column(meta)
+      raise "Add Column needs a table" unless meta.has_key? "to_table"
+      raise "Add Column needs a column name and type" unless meta.has_key?("name") && meta.has_key?("type")
+
+      column = Statements::Column.new meta["name"] as String, meta["type"] as String
+      Statements::AddColumn.new meta["to_table"] as String, column
+    end
   end
 end

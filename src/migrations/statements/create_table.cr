@@ -14,7 +14,7 @@ module Migrations
 
         statement += "\n)"
 
-        RenderedStatement.new(statement, [] of String)
+        RenderedStatement.new statement, [] of String
       end
 
     end

@@ -23,6 +23,8 @@ module Migrations
           "bigint"
         when /Boolean/i
           "boolean"
+        when /Time/i
+          "timestamp with time zone"
         else
           type
         end
