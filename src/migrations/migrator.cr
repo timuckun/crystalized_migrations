@@ -18,14 +18,13 @@ module Migrations
       puts "Database is up to date."
     end
 
-
     @files = [] of String
     @database :: Postgres
     @migrations = [] of String
     @pending_migrations = [] of String
 
-    def initialize
-      @database = Postgres.new
+    def initialize(@engine)
+      @database = @engine.new
       look_for_files
       verify_migrations_table_exists
       recalculate
@@ -96,7 +95,10 @@ module Migrations
         rollback_last_migration
         true
       else
-        run_next_migration
+        while needs_migrations?
+          run_next_migration
+          recalculate
+        end
       end
     rescue e : PG::ResultError
       puts "Error: #{e.message}"

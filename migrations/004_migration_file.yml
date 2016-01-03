@@ -4,6 +4,12 @@ up:
     columns:
       - id: integer
       - url: string
+  # add_column:
+  #   to_table: sites
+  #   name:
+  # execute: |
+  #   alter table thing
+  #   add column stuff
 down:
   drop_table:
     name: sites

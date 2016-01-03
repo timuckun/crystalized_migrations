@@ -1,7 +1,7 @@
 require "pg"
 
 module Migrations
-  class Postgres
+  class Postgres < Database
 
     def initialize(
           server = "localhost",
