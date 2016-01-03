@@ -4,20 +4,6 @@ require "./yaml_runner"
 
 module Migrations
   class Migrator
-    def self.rewind
-      new.migrate :reverse
-    end
-
-    def self.migrate
-      instance = new
-      while instance.needs_migrations?
-        instance.migrate :forward
-        instance.recalculate
-      end
-
-      puts "Database is up to date."
-    end
-
     @files = [] of String
     @database :: Postgres
     @migrations = [] of String
@@ -69,17 +55,6 @@ module Migrations
       @pending_migrations = @files.map { |name| $~[1] if name =~ /^(\d+)_.+$/ } - @migrations
     end
 
-    def needs_migrations?
-      @pending_migrations.size > 0
-    end
-
-    def run_next_migration
-      migrations = @pending_migrations
-      if migrations.any?
-        run_migration @pending_migrations.first as String
-      end
-    end
-
     def file_for_migration(migration_number)
       index = @files.index {|f| f =~ /^#{migration_number}/ }
 
@@ -95,8 +70,10 @@ module Migrations
         rollback_last_migration
         true
       else
-        while needs_migrations?
-          run_next_migration
+        while @pending_migrations.size > 0
+          if @pending_migrations.any?
+            run_migration @pending_migrations.first as String
+          end
           recalculate
         end
       end
