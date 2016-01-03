@@ -1,30 +1,34 @@
 # Crystal Migrations
 
-I'm learning Crystal (most recently from ruby). As an exercise in learning to code in a stricter, compiled environment, I'm building a database migration system.
-
 ## Goals
 
-- Provide a yaml-based database migration dsl, which can be run post-deploy for database connected projects.
-- Provide a simple, programmatic database api targeted towards creating schemas.
-- Both interfaces should be capable subsets of SQL queries, geared towards schema creation.
+- Provide a yaml-based database migration dsl to be run post-compile for database connected projects.
+- Provide a simple, programmatic database api, which can be used as part of a run-time system.
+- Both interfaces should be capable subsets of SQL queries, geared towards schema creation and mutation.
 - Full type abstraction of variables into database fields.
 
 ## Current status
 
-- Prototypical. I've barely run a string through getting it to run migrations from yaml and the api. During this effort, I reorganized and retargeted at least twice.
-- Only capable of creating tables (not dropping them) and the only tested column data types are "string".
+- Prototypical. I've barely run a string through getting it to run migrations from yaml and the api.
 
 ## Installation
 
-Eventually, this project will be embeddable in other projects as a shard.
+Eventually, this project will be embeddable in other projects as a shard, something like this:
 
-For now, it runs only on its own.
+```
+require "crystalized_migrations"
+if %w|up down|.include? ARGV
+  Migrations::CLI.new.run
+end
+```
+
+For now, it runs on its own.
 
 ## Usage
 
 Make sure to provide a postgres database called "migrations_test" on localhost, owned by your current user, with no password. There's no connection parameter handling code.
 
-```shards install; ./run``` from the project directory.
+```shards install; ./run up``` from the project directory.
 
 ## Contributing
 
@@ -32,4 +36,4 @@ Currently, the most valueable feedback is code review. Leave a comment or send m
 
 ## Contributors
 
-- [[@robacarp]](https://bitbucket.com/robacarp) Robert L. Carpenter - creator, maintainer
+- [[@robacarp]](https://github.com/robacarp) Robert L. Carpenter - creator, maintainer
