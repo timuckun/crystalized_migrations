@@ -7,21 +7,40 @@ module Migrations
     setter :migration
     getter :data
 
-    def self.forward(file, database)
+    def self.migrate(file, database)
       runner = new file, database
       runner.migrate
+
+      if runner.can_migrate?
+        runner.migrate
+      else
+        raise "Cannot migrate, no 'up' migration found in #{file}"
+      end
     end
 
-    def self.reverse(file, database)
+    def self.rollback(file, database)
       runner = new file, database
-      runner.rollback
+      if runner.can_rollback?
+        runner.rollback
+      else
+        raise "Cannot rollback, no 'down' migration found in #{file}"
+      end
     end
 
     def initialize(file, @database)
       data  = File.read(file)
       @data = (YAML.load(data) as Hash)
-      @forward = @data["up"] if @data["up"]
-      @reverse = @data["down"] if @data["down"]
+      @forward = @data["up"] if @data.keys.includes? "up"
+      @reverse = @data["down"] if @data.keys.includes? "down"
+      # fail YAML::ParseException.new "Invalid YAML file #{file}"
+    end
+
+    def can_migrate?
+      ! @forward.nil?
+    end
+
+    def can_rollback?
+      ! @reverse.nil?
     end
 
     def migrate
@@ -62,19 +81,19 @@ module Migrations
       true
     end
 
-    def create_table(structure)
+    private def create_table(structure)
       raise "Create Table needs a name" unless structure.has_key? "name"
       raise "Create Table needs an array of columns" unless structure.has_key? "columns"
 
       columns = (structure["columns"] as Array).map do |column|
         next unless column.is_a? Hash
-        Statements::Column.new column.first_key as String, column.first_value as String
+        build_column column
       end
 
       Statements::CreateTable.new structure["name"] as String, columns.compact as Array(Statements::Column)
     end
 
-    def drop_table(meta)
+    private def drop_table(meta)
       raise "Drop Table needs a name" unless meta.has_key? "name"
 
       Statements::DropTable.new meta["name"]
@@ -86,6 +105,24 @@ module Migrations
 
       column = Statements::Column.new meta["name"] as String, meta["type"] as String
       Statements::AddColumn.new meta["to_table"] as String, column
+    end
+
+    private def build_column(meta : Hash)
+      column = Statements::Column.new meta.first_key as String, meta.first_value as String
+
+      if meta.keys.includes? "null"
+        column.null = meta["null"]? == "true"
+      end
+
+      column.default = meta["default"]? if meta.keys.includes? "default"
+
+      if meta.keys.includes? "unique"
+        column.unique = true if meta["unique"]? == "true"
+      end
+
+      column.primary_key = true if meta["primary_key"]? == true
+
+      column
     end
   end
 end

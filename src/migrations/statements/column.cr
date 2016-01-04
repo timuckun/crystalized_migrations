@@ -4,11 +4,45 @@ module Migrations
       property :name
       property :type
 
-      def initialize(@name : String, @type : String)
+      property :null
+      property :default
+      property :unique
+      property :primary_key
+
+      def initialize(
+            @name : String,
+            @type : String,
+            null    = nil,
+            default = nil,
+            unique  = nil,
+            primary_key = false
+          )
+
+        @null        = null
+        @default     = default
+        @unique      = unique
+        @primary_key = primary_key
+      end
+
+      def render_options
+        any_options = [@null, @default, @unique, @primary_key].compact.any?
+        return "" unless any_options
+
+        s = [] of String
+
+        # using @null like a trinary
+        s << "NOT NULL" if @null === false
+        s << "NULL"     if @null === true
+
+        s << "UNIQUE"   if @unique
+        s << "DEFAULT #{@default}" if @default
+        s << "PRIMARY KEY" if @primary_key
+
+        s.join(' ')
       end
 
       def render
-        "\n  #{@name} #{render_type @type}"
+        "\n  #{@name} #{render_type @type} #{render_options}"
       end
 
       def render_type(type : String | Symbol | Class)

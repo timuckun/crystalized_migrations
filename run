@@ -1,2 +1,6 @@
 #!/usr/bin/env bash
+echo dropping tables in postgres...
+psql migrations_test -c "drop table schema_migrations; drop table sites;"
+echo building...
+echo
 crystal run src/cli.cr -- $@

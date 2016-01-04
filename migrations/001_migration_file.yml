@@ -1,0 +1,8 @@
+up:
+  create_table:
+    name: sites
+    columns:
+      - id: integer
+        unique: true
+      - url: string
+    primary_key: :id

@@ -65,29 +65,41 @@ module Migrations
       end
     end
 
-    def migrate(direction)
+    def migrate(direction) : Bool
       if direction == :reverse
         rollback_last_migration
         true
       else
         while @pending_migrations.size > 0
-          if @pending_migrations.any?
-            run_migration @pending_migrations.first as String
-          end
+          run_migration @pending_migrations.first as String
           recalculate
         end
+        true
       end
     rescue e : PG::ResultError
       puts "Error: #{e.message}"
+      false
+    end
+
+    def run_next_migration
+      migrations = @pending_migrations
+      if migrations.any?
+        run_migration @pending_migrations.first as String
+      else
+        false
+      end
     end
 
     def run_migration(number : String)
       migration_file = file_for_migration(number)
       puts "Migrating... #{migration_file}"
-      YamlRunner.forward(migration_file, @database)
+      YamlRunner.migrate(migration_file, @database)
       log_success number
 
-      nil
+      true
+    rescue e : YAML::ParseException
+      puts "YAML Parse Error in #{migration_file}: #{e.message}"
+      false
     end
 
     def log_success(number)
@@ -106,11 +118,14 @@ module Migrations
 
       migration_file = file_for_migration(@migrations.last)
       puts "Rolling back migration: #{migration_file}"
-      YamlRunner.reverse(migration_file, @database)
+      YamlRunner.rollback(migration_file, @database)
 
       remove_log @migrations.last
 
-      nil
+      true
+    rescue e : YAML::ParseException
+      puts "YAML Parse Error in #{migration_file}: #{e.message}"
+      false
     end
 
     def remove_log(number)
